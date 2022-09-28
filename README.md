@@ -2,6 +2,8 @@
 
 We're going to create a simple API to perform various types of search in the address system.
 
+[[_TOC_]]
+
 ## Project setup
 
 Copy the standard template for a python microservice.
