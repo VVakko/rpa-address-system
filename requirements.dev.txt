@@ -1,5 +1,10 @@
 coloredlogs
+django==3.2.4
+djangorestframework
 flake8
+m3-gar
+m3-rest-gar
+psycopg2-binary
 pylint
 pytest
 pytest-cov
