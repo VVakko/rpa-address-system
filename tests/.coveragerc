@@ -1,0 +1,11 @@
+[run]
+data_file = tests/.coverage
+source =
+    app
+    main
+    tests
+
+[report]
+precision = 2
+skip_covered = True
+show_missing = True

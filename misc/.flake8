@@ -1,0 +1,7 @@
+[flake8]
+    extend-ignore = E201,E202,E265,E722
+    max-line-length = 96
+    # E201: whitespace after '{'
+    # E202: whitespace before '}'
+    # E265: block comment should start with '# '
+    # E722: do not use bare 'except'

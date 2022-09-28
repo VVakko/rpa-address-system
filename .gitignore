@@ -1,54 +1,41 @@
-# Source for the following rules: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files / C extensions / Translations
 __pycache__/
-*.py[cod]
-*$py.class
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
-
-# C extensions
+*$py.class
+*.py[cod]
 *.so
-
-# Translations
 *.mo
 *.pot
 
 # Unit test / coverage reports
 .pytest_cache/
 .coverage
-.cache
 coverage
+.cache
+cache
 
 # Flask stuff
-instance/
 .webassets-cache
+instance/
 
 # Editors
 .vscode/
-.idea/
 
 # Environments
+.docker.env
 .env
 .env.bak
 .venv/
 .venv.bak/
-env/
-venv/
-env.bak/
-venv.bak/
 
-# SQLite databases
-*.sqlite*
+# Data Files
+data/*
+!data/.gitkeep
 
 # Log Files
 logs/*
 !logs/.gitkeep
 *.log
 
-# Data Files
-data/*
-!data/.gitkeep
-
-# Temporary Files
-temp*
+# SQLite databases
+*.sqlite*

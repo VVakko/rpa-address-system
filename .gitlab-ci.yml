@@ -1,0 +1,102 @@
+variables:
+  GIT_SSL_NO_VERIFY: "1"
+  DOC_ENV: ".docker.env"
+
+services:
+  - docker:dind
+
+stages:
+  - test
+  - build
+  - deploy
+
+.before_script_env: &before_script_env
+  - echo PROJECT_GROUP=$(echo $CI_PROJECT_NAMESPACE | awk '{ print tolower($0) }') >>$DOC_ENV
+  - echo PROJECT_NAME=$(echo $CI_PROJECT_NAME | awk '{ print tolower($0) }') >>$DOC_ENV
+  # BusyBox grep in docker:latest doesn't have --null-data and -P options
+  #- env -0 | sort -z | grep --null-data -oP '^ARG_\K.*' | xargs -0 -n1 echo >>$DOC_ENV
+  #- env -0 | sort -z | grep --null-data -oP '^ENV_\K.*' | xargs -0 -n1 echo >>.env
+  - env | sort | grep '^ARG_' | sed 's/^ARG_//g' >>$DOC_ENV
+  - env | sort | grep '^ENV_' | sed 's/^ENV_//' | sed -e 's/=/="/;s/$/"/' >>.env
+  - set -o allexport; source $DOC_ENV; set +o allexport
+
+.before_script_main: &before_script_main
+  - make apt-deps-install
+  - make venv-init
+  - make venv-deps-install
+
+.before_script_tests: &before_script_tests
+  - *before_script_env
+  - |
+    if [ ! -z "$APT_MIRROR" ]; then
+      . /etc/os-release
+      export APT_SOURCES="/etc/apt/sources.list"
+      mv $APT_SOURCES $APT_SOURCES.bak
+      echo "deb $APT_MIRROR/debian $VERSION_CODENAME main" >>$APT_SOURCES
+      echo "deb $APT_MIRROR/debian $VERSION_CODENAME-updates main" >>$APT_SOURCES
+      echo "deb $APT_MIRROR/debian-security $VERSION_CODENAME-security main" >>$APT_SOURCES
+    fi
+  - export DEBIAN_FRONTEND="noninteractive"
+  - apt-get update && apt-get upgrade -y --quiet
+  - apt-get install -y --quiet --no-install-recommends
+    build-essential curl git-core make python3-dev python3-venv
+  - *before_script_main
+  - apt-get clean
+  - apt-get purge -y --auto-remove gcc git-core python3-dev
+  - rm -rf /var/lib/apt/lists/*
+
+.tests:
+  stage: test
+  image: python:3.10-slim-bullseye
+  variables:
+    LANG: "C.UTF-8"
+    LC_ALL: "C.UTF-8"
+    PYTHONDONTWRITEBYTECODE: "1"
+    PYTHONUNBUFFERED: "1"
+  before_script:
+    - *before_script_tests
+
+test:
+  extends: .tests
+  allow_failure: false
+  script:
+    - make test-coverage
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+
+lint:
+  extends: .tests
+  allow_failure: true
+  script:
+    - make lint-pylint | tee pylint.log
+  after_script:
+    - PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint.log)
+    - PYLINT_SCORE_PCT=$(python <<< "print($PYLINT_SCORE * 10 if $PYLINT_SCORE > 0 else 1)")
+    - echo "pylint score in percent is $PYLINT_SCORE_PCT"
+  coverage: '/^pylint score in percent is ([0-9.]*)/'
+
+build:
+  stage: build
+  image: docker:latest
+  before_script:
+    - *before_script_env
+    - export ARGS=$(cat $DOC_ENV | sed 's@^@--build-arg @g' | paste -s -d " ")
+  script:
+    - docker build $ARGS
+      --tag $PROJECT_GROUP:$PROJECT_NAME
+      --file misc/Dockerfile .
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_DEPLOY_FREEZE == null
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  before_script:
+    - *before_script_env
+    - apk add --no-cache docker-compose
+  script:
+    - docker-compose
+      --env-file $DOC_ENV
+      --project-name $PROJECT_GROUP
+      --file misc/docker-compose.yml up --detach
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_DEPLOY_FREEZE == null

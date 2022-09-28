@@ -1,0 +1,21 @@
+version: '3'
+
+networks:
+  backend:
+    name: backend
+    external: false
+
+services:
+  rpa-worker-em-processor:
+    image: ${PROJECT_GROUP}:${PROJECT_NAME}
+    container_name: ${PROJECT_NAME}
+    restart: always
+    tty: true
+    environment:
+      TZ: "Europe/Moscow"
+      DEBUG: ${DEBUG}
+    networks:
+      - backend
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /srv/rpa/data:/application/data
