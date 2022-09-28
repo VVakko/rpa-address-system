@@ -2,6 +2,8 @@
 
 We're going to create a simple API to perform various types of search in the address system.
 
+{:toc}
+
 ## Project setup
 
 Copy the standard template for a python microservice.
@@ -34,6 +36,7 @@ Copy the standard template for a python microservice.
 
     # Save dependencies to 'requirements.txt' file (with versions)
     $ make venv-deps-freeze-and-save
+{: .language-bash}
 
 Create a new Django project named `app`, then start a new app called `gar`.
 
@@ -48,6 +51,7 @@ Create a new Django project named `app`, then start a new app called `gar`.
     $ cd app
     $ django-admin startapp gar
     $ cd ..
+{: .language-bash}
 
 The project layout should look like:
 
@@ -66,6 +70,7 @@ The project layout should look like:
     ./app/gar/migrations/__init__.py
     ./app/gar/__init__.py
     ./tests/__init__.py
+{: .language-bash}
 
 Now sync your database for the first time:
 
@@ -91,6 +96,7 @@ Now sync your database for the first time:
     Applying auth.0011_update_proxy_permissions... OK
     Applying auth.0012_alter_user_first_name_max_length... OK
     Applying sessions.0001_initial... OK
+{: .language-bash}
 
 We'll also create an initial user named `admin`. We'll authenticate as that user later in our example.
 
@@ -98,6 +104,7 @@ We'll also create an initial user named `admin`. We'll authenticate as that user
     Password: <enter your password>
     Password (again): <enter your password again>
     Superuser created successfully.
+{: .language-bash}
 
 Once you've set up a database and the initial user is created and ready to go, open up the app's directory and we'll get coding...
 
@@ -119,6 +126,7 @@ First up we're going to define some serializers. Let's create a new module named
         class Meta:
             model = Group
             fields = ['url', 'name']
+{: .language-python}
 
 Notice that we're using hyperlinked relations in this case with `HyperlinkedModelSerializer`.  You can also use primary key and various other relationships, but hyperlinking is good RESTful design.
 
@@ -148,6 +156,7 @@ Right, we'd better write some views then.  Open `app/gar/views.py` and get typin
         queryset = Group.objects.all()
         serializer_class = GroupSerializer
         permission_classes = [permissions.IsAuthenticated]
+{: .language-python}
 
 Rather than write multiple views we're grouping together all the common behavior into classes called `ViewSets`.
 
@@ -175,6 +184,7 @@ Okay, now let's wire up the API URLs.  On to `app/urls.py`...
         path('admin/', admin.site.urls),
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     ]
+{: .language-python}
 
 Because we're using viewsets instead of views, we can automatically generate the URL conf for our API, by simply registering the viewsets with a router class.
 
@@ -199,6 +209,7 @@ Pagination allows you to control how many objects per page are returned. To enab
                 'rest_framework.renderers.JSONRenderer',
             )
         })
+{: .language-python}
 
 ## Settings
 
@@ -208,6 +219,7 @@ Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/
         ...
         'rest_framework',
     ]
+{: .language-python}
 
 Okay, we're done.
 
@@ -222,6 +234,7 @@ Now let's move from the module `app/settings.py` sensitive data that should not 
     DEBUG="0"  # 0 if False, 1 if True
 
     ALLOWED_HOSTS="*"  # Specify the allowed hostnames or IP addresses separated by spaces
+{: .language-bash}
 
 And in the file `app/settings.py` instead of these lines we write
 
@@ -242,6 +255,7 @@ And in the file `app/settings.py` instead of these lines we write
     DEBUG = os.environ.get('DEBUG') == '1'
 
     ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
+{: .language-python}
 
 If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to "1", otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
 
@@ -255,7 +269,7 @@ We're now ready to test the API we've built.  Let's fire up the server from the 
 
 We can now access our API, both from the command-line, using tools like `curl`...
 
-    $ curl -H "Accept: application/json; indent=4" -u admin:"<our password>" http://127.0.0.1:8000/users/
+    $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.0.0.1:8000/users/
     {
         "count": 1,
         "next": null,
@@ -269,5 +283,6 @@ We can now access our API, both from the command-line, using tools like `curl`..
             }
         ]
     }
+{: .language-bash}
 
 Or directly through the browser, by going to the URL `http://127.0.0.1:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
