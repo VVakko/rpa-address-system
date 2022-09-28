@@ -4,7 +4,9 @@ We're going to create a simple API to perform various types of search in the add
 
 [[_TOC_]]
 
-## Project setup
+## Django Project Setup
+
+### Project setup
 
 Copy the standard template for a python microservice.
 
@@ -113,7 +115,7 @@ Superuser created successfully.
 
 Once you've set up a database and the initial user is created and ready to go, open up the app's directory and we'll get coding...
 
-## Serializers
+### Serializers
 
 First up we're going to define some serializers. Let's create a new module named `app/gar/serializers.py` that we'll use for our data representations.
 
@@ -136,7 +138,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 Notice that we're using hyperlinked relations in this case with `HyperlinkedModelSerializer`.  You can also use primary key and various other relationships, but hyperlinking is good RESTful design.
 
-## Views
+### Views
 
 Right, we'd better write some views then.  Open `app/gar/views.py` and get typing.
 
@@ -169,7 +171,7 @@ Rather than write multiple views we're grouping together all the common behavior
 
 We can easily break these down into individual views if we need to, but using viewsets keeps the view logic nicely organized as well as being very concise.
 
-## URLs
+### URLs
 
 Okay, now let's wire up the API URLs.  On to `app/urls.py`...
 
@@ -200,7 +202,7 @@ Again, if we need more control over the API URLs we can simply drop down to usin
 
 Finally, we're including default login and logout views for use with the browsable API.  That's optional, but useful if your API requires authentication and you want to use the browsable API.
 
-## Pagination
+### Pagination
 
 Pagination allows you to control how many objects per page are returned. To enable it add the following lines to `app/settings.py`
 
@@ -220,7 +222,7 @@ if not DEBUG:
     })
 ```
 
-## Settings
+### Settings
 
 Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`
 
@@ -233,7 +235,7 @@ INSTALLED_APPS = [
 
 Okay, we're done.
 
-## Environment Variables
+### Environment Variables
 
 Now let's move from the module `app/settings.py` sensitive data that should not get into the git repository. To do this, create a `.env` file in the root and move the lines to it
 
@@ -273,7 +275,7 @@ If you plan to use the `rest_framework` user interface, then the `DEBUG` variabl
 
 ---
 
-## Testing our API
+### Testing our API
 
 We're now ready to test the API we've built.  Let's fire up the server from the command line.
 
