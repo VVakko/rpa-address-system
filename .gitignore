@@ -19,22 +19,22 @@ cache
 instance/
 
 # Editors
-.vscode/
+/.vscode/
 
-# Environments
-.docker.env
-.env
+# Virtual Environments
+/.venv/
+/.venv.bak/
+/.docker.env
+/.env
 .env.bak
-.venv/
-.venv.bak/
 
 # Data Files
-data/*
-!data/.gitkeep
+/data/*
+!/data/.gitkeep
 
 # Log Files
-logs/*
-!logs/.gitkeep
+/logs/*
+!/logs/.gitkeep
 *.log
 
 # SQLite databases

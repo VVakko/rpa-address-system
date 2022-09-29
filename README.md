@@ -115,6 +115,7 @@ Superuser created successfully.
 
 Once you've set up a database and the initial user is created and ready to go, open up the app's directory and we'll get coding...
 
+
 ### Serializers
 
 First up we're going to define some serializers. Let's create a new module named `app/gar/serializers.py` that we'll use for our data representations.
@@ -137,6 +138,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 ```
 
 Notice that we're using hyperlinked relations in this case with `HyperlinkedModelSerializer`.  You can also use primary key and various other relationships, but hyperlinking is good RESTful design.
+
 
 ### Views
 
@@ -171,6 +173,7 @@ Rather than write multiple views we're grouping together all the common behavior
 
 We can easily break these down into individual views if we need to, but using viewsets keeps the view logic nicely organized as well as being very concise.
 
+
 ### URLs
 
 Okay, now let's wire up the API URLs.  On to `app/urls.py`...
@@ -202,6 +205,7 @@ Again, if we need more control over the API URLs we can simply drop down to usin
 
 Finally, we're including default login and logout views for use with the browsable API.  That's optional, but useful if your API requires authentication and you want to use the browsable API.
 
+
 ### Pagination
 
 Pagination allows you to control how many objects per page are returned. To enable it add the following lines to `app/settings.py`
@@ -222,6 +226,7 @@ if not DEBUG:
     })
 ```
 
+
 ### Settings
 
 Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`
@@ -234,6 +239,7 @@ INSTALLED_APPS = [
 ```
 
 Okay, we're done.
+
 
 ### Environment Variables
 
@@ -271,9 +277,8 @@ DEBUG = os.environ.get('DEBUG') == '1'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
 ```
 
-If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to "1", otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
+If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to `1`, otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
 
----
 
 ### Testing our API
 
@@ -305,3 +310,45 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.
 ```
 
 Or directly through the browser, by going to the URL `http://127.0.0.1:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
+
+
+## m3-gar and m3-rest-gar Project Setup
+
+### Setting up PostgreSQL server for GAR database
+
+```bash
+    $ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
+    $ nano docker-compose.yml
+```
+#### **`docker-compose.yml`**
+```bash
+version: '3.6'
+
+services:
+  postgresql:
+    image: 'postgres:13.8-alpine'
+    container_name: postgresql
+    restart: always
+    environment:
+      TZ: "Europe/Moscow"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${PWD}/data:/var/lib/postgresql/data
+```
+```bash
+    $ nano .env
+```
+#### **`.env`**
+```bash
+POSTGRES_DB="GAR"
+POSTGRES_USER="GARUserName"
+POSTGRES_PASSWORD="GARPassWord"
+```
+```bash
+    $ docker-compose up --detach
+```
