@@ -407,9 +407,13 @@ $ python manage.py migrate --database=gar
 $ python manage.py migrate
 ```
 
+In an ideal world, everything should work right away, but in the real world, a number of other procedures need to be performed.
+
 <details>
     <summary>Fixing bugs in `m3-gar` and `m3-rest-gar`...</summary>
+
     ```bash
     $ fixing...
     ```
+
 </details>
