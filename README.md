@@ -615,3 +615,41 @@ $ sed -i 's/^from django.contrib.postgres.operations import TrigramExtension/fro
 $ sed -i 's/TrigramExtension(),/BtreeGinExtension(),\n        TrigramExtension(),/' .venv/lib/python3.10/site-packages/m3_gar/migrations/0012_auto_20220415_1452.py
 ```
 </details>
+
+
+### Download and import GAR data from http://nalog.ru/ site
+
+Now we are starting the longest procedures in terms of time. We need to download an archive with a database of addresses, extract the macro regions we need from them and upload them to the PostgreSQL database.
+
+First, download the latest archive with the address database.
+
+```bash
+$ wget --directory-prefix=./data `curl -s https://fias.nalog.ru/WebServices/Public/GetLastDownloadFileInfo | jq -r '.GarXMLFullURL'`
+--2022-09-29 09:52:24--  https://fias-file.nalog.ru/downloads/2022.09.27/gar_xml.zip
+Resolving fias-file.nalog.ru... 93.93.89.87
+Connecting to fias-file.nalog.ru|93.93.89.87|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 37221207752 (35G) [application/zip]
+Saving to: 'gar_xml.zip'
+
+gar_xml.zip                   100%[=================================================>]  34.66G  10.6MB/s    in 56m 20s 
+
+2022-09-29 10:48:44 (10.5 MB/s) - 'gar_xml.zip' saved [37221207752/37221207752]
+```
+
+If you plan to load a address directory for all macro-regions to the database, then you need to skip the next step. Otherwise, we will use the script to extract the macro-regions we need from the archive. In the `REGIONS` variable, it is necessary to list the regions separated by a space, the data for which you want to extract.
+
+```bash
+$ REGIONS="47 78" ./contrib/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extracted
+```
+
+Now let's start loading the address directory into the database.
+
+```bash
+# To load the entire directory to PostgreSQL, run the command:
+$ python manage.py gar_load_data --src ./data/gar_xml.zip
+# To load just extracted macro-regions to PostgreSQL, run the command:
+$ python manage.py gar_load_data --src ./data/_extracted/
+```
+
+> If there is already some data in the database, you need to add the key `--truncated`, otherwise the script will issue a corresponding message and stop working.
