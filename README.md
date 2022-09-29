@@ -667,7 +667,15 @@ $ python manage.py gar_load_data --no-truncate --no-transaction --src ./data/_ex
 $ python manage.py manage_constraints enable --fk --unique --index --logged --commit
 ```
 
-In an ideal world, everything should work right away, but in the real world it happens that files from different versions of the directory are found in the archive with the directory. And in some tables there are parts of addresses that refer to data that does not yet exist in older tables. In order to be able to download data from such archives, it is necessary to apply a small patch for the `m3-gar` module.
+In an ideal world, everything should work right away, but in the real world it happens that files from different versions of the directory are found in the archive with the directory. And in some tables there are parts of addresses that refer to data that does not yet exist in older tables. In case of inconsistent data in the database, during the execution of the command <code>python manage.py manage_constraints enable ...</code> occur errors like this
+
+```python
+IntegrityError: insert or update on table "m3_gar_steads" violates foreign key constraint "m3_gar_steads_objectid_4d06fc6f_fk_m3_gar_re"
+DETAIL:  Key (objectid)=(105589166) is not present in table "m3_gar_reestrobjects".
+```
+
+In order to be able to load data from such archives, it is necessary to apply a small patch for the `m3-gar` module.
+
 
 ### Patching m3-gar module for loading inconsistent archive data
 
@@ -694,8 +702,14 @@ After applying the patch, let's start the process of loading data to the databas
 $ python manage.py manage_constraints disable --fk --unique --index --logged --commit
 # Loading extracted macro-regions to PostgreSQL
 $ python manage.py gar_load_data --no-truncate --no-transaction --src ./data/_extracted/
+...
+Awaiting pending database write tasks
+6160 out of 6160 tasks done
+Unknown uploaded version. Please set attribute processed=True to all instances of Version model that less or equal to uploaded version yourself, or next update will be more time consuming
+Data v.20220923 from 2022-09-23 loaded at 2022-09-29 22:21:55.572804+00:00
+Estimated time: 4:44:44.273604. Download: 0. Unpack: 0. Import: 4:44:43.628321
 # Enabling all database restrictions and indexes
 $ python manage.py manage_constraints enable --fk --unique --index --logged --commit --delete-key-violations-quick
 ```
 
-> Loading two regions `47` and `78` takes about 4 hours on a computer with an NVMe SSD, 64GB of RAM and a 4-core `i7-8559U` processor.
+> Loading two regions `47` and `78` takes a little less than 5 hours on a computer with an NVMe SSD, 64GB of RAM and a 4-core `i7-8559U` processor.
