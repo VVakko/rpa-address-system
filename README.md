@@ -233,7 +233,7 @@ Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/
 
 ```python
 INSTALLED_APPS = [
-    ...
+    ...,
     'rest_framework',
 ]
 ```
@@ -317,9 +317,10 @@ Or directly through the browser, by going to the URL `http://127.0.0.1:8000/user
 ### Setting up PostgreSQL server for GAR database
 
 ```bash
-    $ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
-    $ nano docker-compose.yml
+$ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
+$ nano docker-compose.yml
 version: '3.6'
+
 services:
   postgresql:
     image: 'postgres:13.8-alpine'
@@ -335,9 +336,80 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${PWD}/data:/var/lib/postgresql/data
-    $ nano .env
+$ nano .env
 POSTGRES_DB="GAR"
 POSTGRES_USER="GARUserName"
 POSTGRES_PASSWORD="GARPassWord"
-    $ docker-compose up --detach
+$ docker-compose up --detach
+Creating network "postgresql_default" with the default driver
+Creating postgresql ... done
 ```
+
+
+### Setting Up m3-gar and m3-rest-gar Modules in Django Project
+
+Add some modules to `INSTALLED_APPS` and register modules and database in settings module will be in `app/settings.py`.
+
+```python
+INSTALLED_APPS = [
+    ...,
+    'm3_gar',
+    'm3_rest_gar',
+]
+
+REST_FRAMEWORK = {
+    ...,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+}
+
+GAR_DATABASE_ALIAS = 'gar'
+DATABASES = {
+    ...,
+    GAR_DATABASE_ALIAS: {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.environ.get('GAR_DB_HOST'),
+        'PORT': os.environ.get('GAR_DB_PORT'),
+        'NAME': os.environ.get('GAR_DB_NAME'),
+        'USER': os.environ.get('GAR_DB_USER'),
+        'PASSWORD': os.environ.get('GAR_DB_PASS'),
+    },
+}
+
+DATABASE_ROUTERS = [
+    'm3_gar.routers.GARRouter',
+]
+```
+
+```bash
+$ nano .env
+GAR_DB_HOST="localhost"
+GAR_DB_PORT="5432"
+GAR_DB_NAME="GAR"
+GAR_DB_USER="GARUserName"
+GAR_DB_PASS="GARPassWord"
+```
+
+Now let's register REST GAR API URL on to `app/urls.py`
+
+```python
+urlpatterns = [
+    ...,
+    path('gar/', include('m3_rest_gar.urls')),
+]
+```
+
+Now sync your database for using modules `m3-gar` and `m3-rest-gar`:
+
+```bash
+$ python manage.py migrate --database=gar
+$ python manage.py migrate
+```
+
+<details>
+    <summary>Fixing bugs in `m3-gar` and `m3-rest-gar`...</summary>
+    ```bash
+    $ fixing...
+    ```
+</details>

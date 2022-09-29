@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'm3_gar',
+    'm3_rest_gar',
 ]
 
 MIDDLEWARE = [
@@ -92,12 +94,25 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+GAR_DATABASE_ALIAS = 'gar'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    GAR_DATABASE_ALIAS: {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.environ.get('GAR_DB_HOST'),
+        'PORT': os.environ.get('GAR_DB_PORT'),
+        'NAME': os.environ.get('GAR_DB_NAME'),
+        'USER': os.environ.get('GAR_DB_USER'),
+        'PASSWORD': os.environ.get('GAR_DB_PASS'),
+    },
 }
+
+DATABASE_ROUTERS = [
+    'm3_gar.routers.GARRouter',
+]
 
 
 # Password validation
@@ -123,13 +138,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
