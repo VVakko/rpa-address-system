@@ -312,7 +312,7 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.
 Or directly through the browser, by going to the URL `http://127.0.0.1:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
 
 
-## m3-gar and m3-rest-gar Project Setup
+## m3-gar and m3-rest-gar project setup
 
 ### Setting up PostgreSQL server for GAR database
 
@@ -346,7 +346,7 @@ Creating postgresql ... done
 ```
 
 
-### Setting Up m3-gar and m3-rest-gar Modules in Django Project
+### Setting up m3-gar and m3-rest-gar modules in Django project
 
 Add some modules to `INSTALLED_APPS` and register modules and database in settings module will be in `app/settings.py`.
 
@@ -462,7 +462,10 @@ Running migrations:
   Applying m3_gar.0015_alter_normativedocs_orgname... OK
 ```
 
-In an ideal world, everything should work right away, but in the real world, a number of other procedures need to be performed.
+In an ideal world, everything should work right away, but in the real world, a number of other procedures need to be performed. The following section contains hot fixes for errors that may occur.
+
+
+### Fixing errors in m3-gar module
 
 <details>
     <summary>Fixing error: <code>ImportError: cannot import name 'Mapping' from 'collections'</code></summary>
@@ -517,7 +520,7 @@ $ sed -i 's/^from collections import/from collections.abc import/' .venv/lib/pyt
 </details>
 
 <details>
-    <summary>Fixing error: <code>django.db.utils.ProgrammingError: data type character varying has no default operator class for access method "gin"</code></summary>
+    <summary>Fixing error: <code>ProgrammingError: data type character varying has no default operator class for access method "gin"</code></summary>
 
 ```python
 $ python manage.py migrate --database=gar
