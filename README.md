@@ -319,11 +319,7 @@ Or directly through the browser, by going to the URL `http://127.0.0.1:8000/user
 ```bash
     $ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
     $ nano docker-compose.yml
-```
-#### **`docker-compose.yml`**
-```bash
 version: '3.6'
-
 services:
   postgresql:
     image: 'postgres:13.8-alpine'
@@ -339,16 +335,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${PWD}/data:/var/lib/postgresql/data
-```
-```bash
     $ nano .env
-```
-#### **`.env`**
-```bash
 POSTGRES_DB="GAR"
 POSTGRES_USER="GARUserName"
 POSTGRES_PASSWORD="GARPassWord"
-```
-```bash
     $ docker-compose up --detach
 ```
