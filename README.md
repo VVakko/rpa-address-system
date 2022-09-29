@@ -404,16 +404,211 @@ Now sync your database for using modules `m3-gar` and `m3-rest-gar`:
 
 ```bash
 $ python manage.py migrate --database=gar
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, m3_gar, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying m3_gar.0001_initial... OK
+  Applying m3_gar.0002_auto_20210707_1352... OK
+  Applying m3_gar.0003_auto_20210906_0744... OK
+  Applying m3_gar.0004_auto_20211013_1106... OK
+  Applying m3_gar.0005_auto_20211029_1212... OK
+  Applying m3_gar.0006_auto_20211105_0937... OK
+  Applying m3_gar.0007_version_processed... OK
+  Applying m3_gar.0008_auto_20220217_0556... OK
+  Applying m3_gar.0009_delete_status... OK
+  Applying m3_gar.0010_auto_20220225_0934... OK
+  Applying m3_gar.0011_auto_20220323_1022... OK
+  Applying m3_gar.0012_auto_20220415_1452... OK
+  Applying m3_gar.0013_auto_20220513_0825... OK
+  Applying m3_gar.0014_addrobj_name_with_typename... OK
+  Applying m3_gar.0015_alter_normativedocs_orgname... OK
+  Applying sessions.0001_initial... OK
+
 $ python manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, m3_gar, sessions
+Running migrations:
+  Applying m3_gar.0001_initial... OK
+  Applying m3_gar.0002_auto_20210707_1352... OK
+  Applying m3_gar.0003_auto_20210906_0744... OK
+  Applying m3_gar.0004_auto_20211013_1106... OK
+  Applying m3_gar.0005_auto_20211029_1212... OK
+  Applying m3_gar.0006_auto_20211105_0937... OK
+  Applying m3_gar.0007_version_processed... OK
+  Applying m3_gar.0008_auto_20220217_0556... OK
+  Applying m3_gar.0009_delete_status... OK
+  Applying m3_gar.0010_auto_20220225_0934... OK
+  Applying m3_gar.0011_auto_20220323_1022... OK
+  Applying m3_gar.0012_auto_20220415_1452... OK
+  Applying m3_gar.0013_auto_20220513_0825... OK
+  Applying m3_gar.0014_addrobj_name_with_typename... OK
+  Applying m3_gar.0015_alter_normativedocs_orgname... OK
 ```
 
 In an ideal world, everything should work right away, but in the real world, a number of other procedures need to be performed.
 
 <details>
-    <summary>Fixing bugs in `m3-gar` and `m3-rest-gar`...</summary>
+    <summary>Fixing error: <code>ImportError: cannot import name 'Mapping' from 'collections'</code></summary>
 
-    ```bash
-    $ fixing...
-    ```
+```python
+$ python manage.py migrate --database=gar
+Traceback (most recent call last):
+File "/rpa-address-system/manage.py", line 22, in <module>
+    main()
+File "/rpa-address-system/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/__init__.py", line 419, in execute_from_command_line
+    utility.execute()
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/__init__.py", line 413, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 354, in run_from_argv
+    self.execute(*args, **cmd_options)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 398, in execute
+    output = self.handle(*args, **options)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 89, in wrapped
+    res = handle_func(*args, **kwargs)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/commands/migrate.py", line 92, in handle
+    executor = MigrationExecutor(connection, self.migration_progress_callback)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/executor.py", line 18, in __init__
+    self.loader = MigrationLoader(self.connection)
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/loader.py", line 53, in __init__
+    self.build_graph()
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/loader.py", line 214, in build_graph
+    self.load_disk()
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/loader.py", line 116, in load_disk
+    migration_module = import_module(migration_path)
+File "/usr/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/migrations/0008_auto_20220217_0556.py", line 6, in <module>
+    from m3_gar.importer.commands import get_table_names
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/importer/commands.py", line 39, in <module>
+    from m3_gar.importer import (
+File "/rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/importer/db_wrapper.py", line 2, in <module>
+    from collections import (
+ImportError: cannot import name 'Mapping' from 'collections' (/usr/lib/python3.10/collections/__init__.py)
+```
+```bash
+$ sed -i 's/^from collections import/from collections.abc import/' .venv/lib/python3.10/site-packages/m3_gar/importer/db_wrapper.py
+```
 
+</details>
+
+<details>
+    <summary>Fixing error: <code>django.db.utils.ProgrammingError: data type character varying has no default operator class for access method "gin"</code></summary>
+
+```python
+$ python manage.py migrate --database=gar
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, m3_gar, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying m3_gar.0001_initial... OK
+  Applying m3_gar.0002_auto_20210707_1352... OK
+  Applying m3_gar.0003_auto_20210906_0744... OK
+  Applying m3_gar.0004_auto_20211013_1106... OK
+  Applying m3_gar.0005_auto_20211029_1212... OK
+  Applying m3_gar.0006_auto_20211105_0937... OK
+  Applying m3_gar.0007_version_processed... OK
+  Applying m3_gar.0008_auto_20220217_0556... OK
+  Applying m3_gar.0009_delete_status... OK
+  Applying m3_gar.0010_auto_20220225_0934... OK
+  Applying m3_gar.0011_auto_20220323_1022... OK
+  Applying m3_gar.0012_auto_20220415_1452...Traceback (most recent call last):
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 82, in _execute
+    return self.cursor.execute(sql)
+psycopg2.errors.UndefinedObject: data type character varying has no default operator class for access method "gin"
+HINT:  You must specify an operator class for the index or define a default operator class for the data type.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/rpa-address-system/manage.py", line 22, in <module>
+    main()
+  File "/rpa-address-system/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/__init__.py", line 419, in execute_from_command_line
+    utility.execute()
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/__init__.py", line 413, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 354, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 398, in execute
+    output = self.handle(*args, **options)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/base.py", line 89, in wrapped
+    res = handle_func(*args, **kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/management/commands/migrate.py", line 244, in handle
+    post_migrate_state = executor.migrate(
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/executor.py", line 117, in migrate
+    state = self._migrate_all_forwards(state, plan, full_plan, fake=fake, fake_initial=fake_initial)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/executor.py", line 147, in _migrate_all_forwards
+    state = self.apply_migration(state, migration, fake=fake, fake_initial=fake_initial)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/executor.py", line 227, in apply_migration
+    state = migration.apply(state, schema_editor)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/migration.py", line 126, in apply
+    operation.database_forwards(self.app_label, schema_editor, old_state, project_state)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/migrations/operations/models.py", line 761, in database_forwards
+    schema_editor.add_index(model, self.index)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/postgresql/schema.py", line 218, in add_index
+    self.execute(index.create_sql(model, self, concurrently=concurrently), params=None)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/base/schema.py", line 145, in execute
+    cursor.execute(sql, params)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 98, in execute
+    return super().execute(sql, params)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 66, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 75, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in _execute
+    with self.db.wrap_database_errors:
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 82, in _execute
+    return self.cursor.execute(sql)
+django.db.utils.ProgrammingError: data type character varying has no default operator class for access method "gin"
+HINT:  You must specify an operator class for the index or define a default operator class for the data type.
+```
+```bash
+$ sed -i 's/^from django.contrib.postgres.operations import TrigramExtension/from django.contrib.postgres.operations import BtreeGinExtension, TrigramExtension/' .venv/lib/python3.10/site-packages/m3_gar/migrations/0012_auto_20220415_1452.py
+$ sed -i 's/TrigramExtension(),/BtreeGinExtension(),\n        TrigramExtension(),/' .venv/lib/python3.10/site-packages/m3_gar/migrations/0012_auto_20220415_1452.py
+```
 </details>
