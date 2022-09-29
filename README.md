@@ -632,12 +632,12 @@ HTTP request sent, awaiting response... 200 OK
 Length: 37221207752 (35G) [application/zip]
 Saving to: 'gar_xml.zip'
 
-gar_xml.zip                   100%[=================================================>]  34.66G  10.6MB/s    in 56m 20s 
+gar_xml.zip     100%[=================================================>]  34.66G  10.6MB/s    in 56m 20s 
 
 2022-09-29 10:48:44 (10.5 MB/s) - 'gar_xml.zip' saved [37221207752/37221207752]
 ```
 
-If you plan to load a address directory for all macro-regions to the database, then you need to skip the next step. Otherwise, we will use the script to extract the macro-regions we need from the archive. In the `REGIONS` variable, it is necessary to list the regions separated by a space, the data for which you want to extract.
+If you plan to load a address directory for all macro-regions to the database, then you need to skip the next step. Otherwise, we will use the script to extract the macro-regions we need from the archive. In the `REGIONS` variable, it is necessary to list the macro-regions separated by a space, the data for which you want to extract.
 
 ```bash
 $ REGIONS="47 78" ./contrib/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extracted
@@ -646,10 +646,56 @@ $ REGIONS="47 78" ./contrib/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extrac
 Now let's start loading the address directory into the database.
 
 ```bash
-# To load the entire directory to PostgreSQL, run the command:
+# To load the entire directory to PostgreSQL
 $ python manage.py gar_load_data --src ./data/gar_xml.zip
-# To load just extracted macro-regions to PostgreSQL, run the command:
+# To load just extracted macro-regions
 $ python manage.py gar_load_data --src ./data/_extracted/
 ```
 
 > If there is already some data in the database, you need to add the key `--truncated`, otherwise the script will issue a corresponding message and stop working.
+
+### Speed up GAR data loading to PostgreSQL
+
+For initial data loading, it may be advantageous to temporarily disable database constraints and indexes and perform the loading without a transaction.
+
+```bash
+# Disabling all database restrictions and indexes
+$ python manage.py manage_constraints disable --fk --unique --index --logged --commit
+# Loading extracted macro-regions to PostgreSQL
+$ python manage.py gar_load_data --no-truncate --no-transaction --src ./data/_extracted/
+# Enabling all database restrictions and indexes
+$ python manage.py manage_constraints enable --fk --unique --index --logged --commit
+```
+
+In an ideal world, everything should work right away, but in the real world it happens that files from different versions of the directory are found in the archive with the directory. And in some tables there are parts of addresses that refer to data that does not yet exist in older tables. In order to be able to download data from such archives, it is necessary to apply a small patch for the `m3-gar` module.
+
+### Patching m3-gar module for loading inconsistent archive data
+
+This patch will remove rows from the database that refer to non-existent data. Thus, we will lose some addresses that have been added to the database in the last day or two, but the data in the database will remain consistent.
+
+Before applying the patch, you need to make sure that the version of the `m3-gar` module is `1.0.33`.
+
+```bash
+$ pip show m3-gar | grep 'Version'
+Version: 1.0.33
+```
+
+If the module version is suitable, then apply the patch:
+
+```bash
+$ patch `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/management/commands/manage_constraints.py -p0 <./contrib/m3-gar-1.0.33/manage_constraints.patch
+patching file /rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/management/commands/manage_constraints.py
+```
+
+After applying the patch, let's start the process of loading data to the database. Note that to the last command we added the key `--delete-key-violations-quick`, which appeared after applying the patch. This command deletes inconsistent data when creating indexes and relationships in database tables.
+
+```bash
+# Disabling all database restrictions and indexes
+$ python manage.py manage_constraints disable --fk --unique --index --logged --commit
+# Loading extracted macro-regions to PostgreSQL
+$ python manage.py gar_load_data --no-truncate --no-transaction --src ./data/_extracted/
+# Enabling all database restrictions and indexes
+$ python manage.py manage_constraints enable --fk --unique --index --logged --commit --delete-key-violations-quick
+```
+
+> Loading two regions `47` and `78` takes about 4 hours on a computer with an NVMe SSD, 64GB of RAM and a 4-core `i7-8559U` processor.

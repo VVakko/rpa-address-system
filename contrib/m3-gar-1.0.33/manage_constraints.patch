@@ -1,0 +1,117 @@
+--- management/commands/manage_constraints.py.orig	2022-09-29 00:44:51.399555029 +0300
++++ management/commands/manage_constraints.py	2022-09-29 13:26:57.973060871 +0300
+@@ -1,3 +1,5 @@
++import re
++
+ from django.core.management import (
+     BaseCommand,
+ )
+@@ -5,6 +7,9 @@
+     connections,
+     transaction,
+ )
++from django.db.utils import (
++    IntegrityError,
++)
+ from django.utils.functional import (
+     partition,
+ )
+@@ -76,6 +81,21 @@
+             default=False,
+             help='Commit produced SQL to the database',
+         )
++        parser.add_argument(
++            '--delete-key-violations-exact',
++            action='store_true',
++            default=False,
++            help='Delete rows what violates foreign key constraint (using operator "=")',
++        )
++        parser.add_argument(
++            '--delete-key-violations-quick',
++            action='store_true',
++            default=False,
++            help=(
++                'Delete rows what violates foreign key constraint '
++                '(using operator ">=" for quick removal incorrect tails)'
++            ),
++        )
+ 
+     def handle(
+         self, *args,
+@@ -89,8 +109,18 @@
+         **kwargs,
+     ):
+         self.models = sort_models(get_models())
+-        self.sql_collected = []
+         self.enable = state == 'enable'
++        self.sql_collected = []
++        self.sql_delete_collected = []
++        if kwargs.get('delete_key_violations_exact'):
++            self.sql_delete_key_violations = True
++            self.sql_delete_exact_key = True
++        elif kwargs.get('delete_key_violations_quick'):
++            self.sql_delete_key_violations = True
++            self.sql_delete_exact_key = False
++        else:
++            self.sql_delete_key_violations = False
++            self.sql_delete_exact_key = False
+ 
+         if not self.enable and truncate is not None:
+             regions = truncate and truncate.split(',') or []
+@@ -107,12 +137,34 @@
+         for sql in self.sql_collected:
+             self.stdout.write(sql)
+ 
+-        if commit:
++        if not commit:
++            return
++
++        while True:
++            deleted_row_count = 0
+             with transaction.atomic(using=config.DATABASE_ALIAS):
+                 conn = connections[config.DATABASE_ALIAS]
+                 with conn.cursor() as cursor:
+-                    for sql in self.sql_collected:
+-                        cursor.execute(sql)
++                    try:
++                        for sql in self.sql_delete_collected:
++                            cursor.execute(sql)
++                            deleted_row_count += cursor.rowcount
++                        for sql in self.sql_collected:
++                            cursor.execute(sql)
++                        break  # from 'while True'
++                    except IntegrityError as e:
++                        if not self.sql_delete_key_violations:
++                            raise e
++                        error_msg = str(e)
++                        sql = self.get_delete_sql_command(error_msg, self.sql_delete_exact_key)
++                        if sql:
++                            self.stdout.write(sql)
++                            self.sql_delete_collected.append(sql)
++                        else:
++                            raise e
++
++        if deleted_row_count > 0:
++            self.stdout.write(f'Total deleted row count: {deleted_row_count}')
+ 
+     def truncate(self, regions):
+         truncate_all = not regions
+@@ -166,3 +218,18 @@
+         for model in self.models:
+             sql = f'ALTER TABLE {model._meta.db_table} SET {logged};'
+             self.sql_collected.append(sql)
++
++    def get_delete_sql_command(self, error_msg: str, sql_delete_exact_key: bool):
++        result = ''
++        re_pattern = re.compile(
++            r'insert or update on table "(.*)" violates foreign '
++            r'key constraint ".*"\nDETAIL:  Key \((.*)\)=\((.*)\) '
++            r'is not present in table "(.*)".'
++        )
++        re_res = list(re_pattern.findall(error_msg) or [''])[-1]
++        if len(re_res) == 4:
++            sql_op = '=' if sql_delete_exact_key else '>='
++            result = f"DELETE FROM {re_res[0]} WHERE {re_res[1]} {sql_op} {re_res[2]};"
++        else:
++            print(error_msg)
++        return result
