@@ -134,7 +134,7 @@ DATABASES = {
 
 If you plan to place the default Django database on the MySQL/MariaDB server, then you need to perform the following actions.
 
-#### Setting MySQL credentials in .env file for connecting to the MySQL/MariaDB DB:
+#### Setting MySQL credentials in `.env` file for connecting to the MySQL/MariaDB DB:
 
 ```bash
 DB_HOST="localhost"
@@ -144,14 +144,14 @@ DB_USER="DjangoUserName"
 DB_PASS="DjangoPassWord"
 ```
 
-#### Installing pymysql module in python virtual environment
+#### Installing `pymysql` module in python virtual environment
 ```bash
 $ echo 'pymysql' >>requirements.dev.txt
 $ make venv-deps-upgrade
 $ make venv-deps-freeze-and-save
 ```
 
-#### Setting MySQL credentials in .env file for connecting to the MySQL/MariaDB DB:
+#### Updating `app/settings.py` file for connecting to the MySQL/MariaDB DB:
 
 ```python
 import pymysql
@@ -369,7 +369,7 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.
 Or directly through the browser, by going to the URL `http://127.0.0.1:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
 
 
-## m3-gar and m3-rest-gar project setup
+## `m3-gar` and `m3-rest-gar` project setup
 
 ### Setting up PostgreSQL server for GAR database
 
@@ -403,7 +403,7 @@ Creating postgresql ... done
 ```
 
 
-### Setting up m3-gar and m3-rest-gar modules in Django project
+### Setting up `m3-gar` and `m3-rest-gar` modules in Django project
 
 Add some modules to `INSTALLED_APPS` and register modules and database in settings module will be in `app/settings.py`.
 
@@ -522,7 +522,7 @@ Running migrations:
 In an ideal world, everything should work right away, but in the real world, a number of other procedures need to be performed. The following section contains hot fixes for errors that may occur.
 
 
-### Fixing errors in m3-gar module
+### Fixing errors in `m3-gar` module
 
 <details>
     <summary>Fixing error: <code>ImportError: cannot import name 'Mapping' from 'collections'</code></summary>
@@ -734,7 +734,7 @@ DETAIL:  Key (objectid)=(105589166) is not present in table "m3_gar_reestrobject
 In order to be able to load data from such archives, it is necessary to apply a small patch for the `m3-gar` module.
 
 
-### Patching m3-gar module for loading inconsistent archive data
+### Patching `m3-gar` module for loading inconsistent archive data
 
 This patch will remove rows from the database that refer to non-existent data. Thus, we will lose some addresses that have been added to the database in the last day or two, but the data in the database will remain consistent.
 
