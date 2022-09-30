@@ -18,3 +18,4 @@ services:
       - backend
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /srv/rpa/data:/application/data

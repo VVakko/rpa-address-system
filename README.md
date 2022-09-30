@@ -4,6 +4,11 @@ We're going to create a simple API to perform various types of search in the add
 
 [[_TOC_]]
 
+## Introduction
+
+This manual is a compilation of the official [**Django REST framework Quickstart**](https://www.django-rest-framework.org/tutorial/quickstart/) and manuals for modules [`m3-gar`](https://pypi.org/project/m3-gar/) and [`m3-rest-gar`](https://pypi.org/project/m3-rest-gar/). Many thanks to the people who wrote them. I recommend reading these manuals before getting started.
+
+
 ## Django Project Setup
 
 ### Project setup
@@ -171,7 +176,7 @@ DATABASES = {
 ```
 
 
-### Initializing Django DB and creating administrator
+### Initializing Django DB and creating initial user `admin`
 
 Now sync your database for the first time:
 
@@ -571,7 +576,7 @@ File "/rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/importer/db_
 ImportError: cannot import name 'Mapping' from 'collections' (/usr/lib/python3.10/collections/__init__.py)
 ```
 ```bash
-$ sed -i 's/^from collections import/from collections.abc import/' .venv/lib/python3.10/site-packages/m3_gar/importer/db_wrapper.py
+$ sed -i 's/^from collections import/from collections.abc import/' `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/importer/db_wrapper.py
 ```
 
 </details>
@@ -668,8 +673,8 @@ django.db.utils.ProgrammingError: data type character varying has no default ope
 HINT:  You must specify an operator class for the index or define a default operator class for the data type.
 ```
 ```bash
-$ sed -i 's/^from django.contrib.postgres.operations import TrigramExtension/from django.contrib.postgres.operations import BtreeGinExtension, TrigramExtension/' .venv/lib/python3.10/site-packages/m3_gar/migrations/0012_auto_20220415_1452.py
-$ sed -i 's/TrigramExtension(),/BtreeGinExtension(),\n        TrigramExtension(),/' .venv/lib/python3.10/site-packages/m3_gar/migrations/0012_auto_20220415_1452.py
+$ sed -i 's/^from django.contrib.postgres.operations import TrigramExtension/from django.contrib.postgres.operations import BtreeGinExtension, TrigramExtension/' `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/migrations/0012_auto_20220415_1452.py
+$ sed -i 's/TrigramExtension(),/BtreeGinExtension(),\n        TrigramExtension(),/' `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/migrations/0012_auto_20220415_1452.py
 ```
 </details>
 
@@ -697,7 +702,7 @@ gar_xml.zip     100%[=================================================>]  34.66G
 If you plan to load a address directory for all macro-regions to the database, then you need to skip the next step. Otherwise, we will use the script to extract the macro-regions we need from the archive. In the `REGIONS` variable, it is necessary to list the macro-regions separated by a space, the data for which you want to extract.
 
 ```bash
-$ REGIONS="47 78" ./contrib/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extracted
+$ REGIONS="47 78" ./misc/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extracted
 ```
 
 Now let's start loading the address directory into the database.
@@ -748,7 +753,7 @@ Version: 1.0.33
 If the module version is suitable, then apply the patch:
 
 ```bash
-$ patch `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/management/commands/manage_constraints.py -p0 <./contrib/m3-gar-1.0.33/manage_constraints.patch
+$ patch `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/management/commands/manage_constraints.py -p0 <./misc/m3-gar-1.0.33/manage_constraints.patch
 patching file /rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/management/commands/manage_constraints.py
 ```
 
@@ -757,6 +762,7 @@ After applying the patch, let's start the process of loading data to the databas
 ```bash
 # Disabling all database restrictions and indexes
 $ python manage.py manage_constraints disable --fk --unique --index --logged --commit
+
 # Loading extracted macro-regions to PostgreSQL
 $ python manage.py gar_load_data --no-truncate --no-transaction --src ./data/_extracted/
 ...
@@ -765,6 +771,7 @@ Awaiting pending database write tasks
 Unknown uploaded version. Please set attribute processed=True to all instances of Version model that less or equal to uploaded version yourself, or next update will be more time consuming
 Data v.20220923 from 2022-09-23 loaded at 2022-09-29 22:21:55.572804+00:00
 Estimated time: 4:44:44.273604. Download: 0. Unpack: 0. Import: 4:44:43.628321
+
 # Enabling all database restrictions and indexes
 $ python manage.py manage_constraints enable --fk --unique --index --logged --commit --delete-key-violations-quick
 ...
