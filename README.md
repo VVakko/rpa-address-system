@@ -306,6 +306,17 @@ Again, if we need more control over the API URLs we can simply drop down to usin
 
 Finally, we're including default login and logout views for use with the browsable API.  That's optional, but useful if your API requires authentication and you want to use the browsable API.
 
+In case you plan to run this instance of Django using gunicorn, you can add to the end of the file `app/urls.py` the following lines:
+
+```python
+# SECURITY WARNING: don't run with in real production!
+# pylint: disable=wrong-import-position,wrong-import-order,ungrouped-imports
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # noqa
+urlpatterns += staticfiles_urlpatterns()
+```
+
+This will allow Django to serve static files independently, without involving an external nginx server.
+
 
 ### Pagination
 
