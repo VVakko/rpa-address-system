@@ -353,7 +353,7 @@ $ python manage.py runserver 0.0.0.0:8000
 We can now access our API, both from the command-line, using tools like `curl`...
 
 ```bash
-$ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.0.0.1:8000/users/
+$ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://localhost:8000/users/
 ```
 ```json
 {
@@ -362,7 +362,7 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.
     "previous": null,
     "results": [
         {
-            "url": "http://127.0.0.1:8000/users/1/",
+            "url": "http://localhost:8000/users/1/",
             "username": "admin",
             "email": "admin@example.com",
             "groups": []
@@ -371,7 +371,7 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://127.
 }
 ```
 
-Or directly through the browser, by going to the URL `http://127.0.0.1:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
+Or directly through the browser, by going to the URL `http://localhost:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
 
 
 ## `m3-gar` and `m3-rest-gar` project setup
