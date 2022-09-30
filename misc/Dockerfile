@@ -48,6 +48,7 @@ RUN    make apt-deps-install \
 # Create entrypoint.sh, add user and chown /application folder with contents
 RUN printf "#!/bin/sh\n\
 make run-django-migrate\n\
+make run-django-collectstatic\n\
 make run-django-supervisord\n" >entrypoint.sh \
     && chmod u+x entrypoint.sh \
     && adduser rpa --no-create-home --gecos "" --disabled-password \
