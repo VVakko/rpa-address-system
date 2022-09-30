@@ -77,6 +77,102 @@ $ find . -name '*.py' -not -path './.venv/*'
 ./tests/__init__.py
 ```
 
+### Environment Variables
+
+Now let's move from the module `app/settings.py` sensitive data that should not get into the git repository. To do this, create a `.env` file in the root and move the lines to it
+
+```bash
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY="django-insecure-..."
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG="0"  # 0 if False, 1 if True
+
+ALLOWED_HOSTS="*"  # Specify the allowed hostnames or IP addresses separated by spaces
+```
+
+And in the file `app/settings.py` instead of these lines we write
+
+```python
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = BASE_DIR / '.env'
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG') == '1'
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
+```
+
+If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to `1`, otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
+
+
+### Moving default SQLite database to data directory
+
+By default, Django creates the default database in the root directory, this is not very convenient. Therefore, it is necessary to move the file `db.sqlite3` to the `data` folder and make the appropriate changes in the file `app/settings.py`:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'data' / 'db.sqlite3',
+    },
+}
+```
+
+
+### Moving default Django database to MySQL server
+
+If you plan to place the default Django database on the MySQL/MariaDB server, then you need to perform the following actions.
+
+#### Setting MySQL credentials in .env file for connecting to the MySQL/MariaDB DB:
+
+```bash
+DB_HOST="localhost"
+DB_PORT="3306"
+DB_NAME="Django"
+DB_USER="DjangoUserName"
+DB_PASS="DjangoPassWord"
+```
+
+#### Installing pymysql module in python virtual environment
+```bash
+$ echo 'pymysql' >>requirements.dev.txt
+$ make venv-deps-upgrade
+$ make venv-deps-freeze-and-save
+```
+
+#### Setting MySQL credentials in .env file for connecting to the MySQL/MariaDB DB:
+
+```python
+import pymysql
+pymysql.version_info = (1, 4, 6, 'final', 0)
+pymysql.install_as_MySQLdb()
+...
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+    },
+}
+```
+
+
+### Initializing Django DB and creating administrator
+
 Now sync your database for the first time:
 
 ```bash
@@ -239,45 +335,6 @@ INSTALLED_APPS = [
 ```
 
 Okay, we're done.
-
-
-### Environment Variables
-
-Now let's move from the module `app/settings.py` sensitive data that should not get into the git repository. To do this, create a `.env` file in the root and move the lines to it
-
-```bash
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY="django-insecure-..."
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG="0"  # 0 if False, 1 if True
-
-ALLOWED_HOSTS="*"  # Specify the allowed hostnames or IP addresses separated by spaces
-```
-
-And in the file `app/settings.py` instead of these lines we write
-
-```python
-from pathlib import Path
-import os
-from dotenv import load_dotenv
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-dotenv_path = BASE_DIR / '.env'
-if dotenv_path.exists():
-    load_dotenv(dotenv_path)
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG') == '1'
-
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
-```
-
-If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to `1`, otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
 
 
 ### Testing our API
@@ -710,6 +767,25 @@ Data v.20220923 from 2022-09-23 loaded at 2022-09-29 22:21:55.572804+00:00
 Estimated time: 4:44:44.273604. Download: 0. Unpack: 0. Import: 4:44:43.628321
 # Enabling all database restrictions and indexes
 $ python manage.py manage_constraints enable --fk --unique --index --logged --commit --delete-key-violations-quick
+...
+DELETE FROM m3_gar_steads WHERE objectid >= 105589166;
+DELETE FROM m3_gar_munhierarchy WHERE objectid >= 105589166;
+DELETE FROM m3_gar_carplaces WHERE objectid >= 105590959;
+DELETE FROM m3_gar_admhierarchy WHERE objectid >= 105589166;
+DELETE FROM m3_gar_apartments WHERE objectid >= 105590250;
+DELETE FROM m3_gar_houses WHERE objectid >= 105589510;
+Total deleted row count: 2378
 ```
 
-> Loading two regions `47` and `78` takes a little less than 5 hours on a computer with an NVMe SSD, 64GB of RAM and a 4-core `i7-8559U` processor.
+> Loading two regions `47` and `78` takes a little less than 5 hours on a computer with an NVMe SSD, 64GB of RAM and a Quad-core `i7-8559U` processor.
+
+
+### Filling `name_with_parents` and `name_with_typename` fields in the `AddrOdj` model
+
+Additional fields `name_with_parents` (in the hierarchy model) and `name_with_typename` (in the `AddrOdj` model) were added to the database. To fill these fields with data, the `fill_custom_fields` command is provided.
+
+```python
+# Starting updating the name_with_parents fields for the AdmHierarchy and MunHierarchy models
+$ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8 --adm
+$ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8
+```

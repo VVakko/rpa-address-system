@@ -98,7 +98,7 @@ GAR_DATABASE_ALIAS = 'gar'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'data' / 'db.sqlite3',
     },
     GAR_DATABASE_ALIAS: {
         'ENGINE': 'django.db.backends.postgresql',
