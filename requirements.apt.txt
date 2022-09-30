@@ -1,0 +1,1 @@
+supervisor  # for running Django application in production environment

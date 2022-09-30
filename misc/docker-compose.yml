@@ -24,7 +24,7 @@ services:
       traefik.enable: true
       traefik.http.routers.rpa-address-system-web.entrypoints: websecure
       traefik.http.routers.rpa-address-system-web.rule: |
-        Host(`${HOSTNAME}`)&& PathPrefix(`/admin`, `/api-auth`, `/gar`)
+        Host(`${HOSTNAME}`)&& PathPrefix(`/admin`, `/static/admin`, `/api-auth`, `/gar`)
       traefik.http.routers.rpa-address-system-web.tls: true
       traefik.http.routers.rpa-address-system-web.service: rpa-address-system-web-service
       traefik.http.services.rpa-address-system-web-service.loadbalancer.server.port: 8000

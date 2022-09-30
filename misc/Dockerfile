@@ -47,11 +47,26 @@ RUN    make apt-deps-install \
 
 # Create entrypoint.sh, add user and chown /application folder with contents
 RUN printf "#!/bin/sh\n\
-make run-django\n" >entrypoint.sh \
+make run-django-db-upgrade\n\
+make run-django-supervisord\n" >entrypoint.sh \
     && chmod u+x entrypoint.sh \
     && adduser rpa --no-create-home --gecos "" --disabled-password \
     && chown -R rpa: /application
 
 # Configure application environment and deploy
+# Configure application environment and deploy
+ENV GUNICORN_BIND_HOST="0.0.0.0" \
+    GUNICORN_BIND_PORT="8000" \
+    GUNICORN_LIMIT_REQUEST_FIELD_SIZE="0" \
+    GUNICORN_LIMIT_REQUEST_LINE="0" \
+    GUNICORN_TIMEOUT="60" \
+    GUNICORN_WORKERS="2"
+ENV GUNICORN_CMD_ARGS=$"\
+    --bind ${GUNICORN_BIND_HOST}:${GUNICORN_BIND_PORT} \
+    --limit-request-field_size ${GUNICORN_LIMIT_REQUEST_FIELD_SIZE} \
+    --limit-request-line ${GUNICORN_LIMIT_REQUEST_LINE} \
+    --timeout ${GUNICORN_TIMEOUT} \
+    --workers ${GUNICORN_WORKERS} \
+"
 USER rpa
 ENTRYPOINT [ "./entrypoint.sh" ]
