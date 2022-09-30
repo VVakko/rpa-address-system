@@ -346,6 +346,7 @@ Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/
 ```python
 INSTALLED_APPS = [
     ...,
+    'django_filters',
     'rest_framework',
 ]
 ```
