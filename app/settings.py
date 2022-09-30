@@ -148,14 +148,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / STATIC_URL.replace('/', '')
-# Additional locations of static files
-#STATICFILES_DIRS = (STATIC_ROOT, )
-# List of finder classes that know how to find static files in various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
 
 
 # Default primary key field type

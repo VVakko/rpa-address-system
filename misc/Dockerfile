@@ -42,7 +42,6 @@ RUN    make apt-deps-install \
     && make venv-init \
     && make venv-deps-install \
     && make venv-deps-patch \
-    && make run-django-collectstatic \
     && apt-get clean && apt-get purge -y --auto-remove gcc git-core python3-dev \
     && rm -rf /var/lib/apt/lists/*
 

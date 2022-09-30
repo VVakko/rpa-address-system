@@ -32,3 +32,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('gar/', include('m3_rest_gar.urls')),
 ]
+
+# SECURITY WARNING: don't run with in real production!
+# pylint: disable=wrong-import-position,wrong-import-order,ungrouped-imports
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # noqa
+urlpatterns += staticfiles_urlpatterns()
