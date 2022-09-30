@@ -6,7 +6,7 @@ run-django:  ## Run django application with debugger
 
 .PHONY: run-django-collectstatic
 run-django-collectstatic:  ## Run django collectstatic
-	$(ACTIVATE) && python manage.py collectstatic
+	$(ACTIVATE) && python manage.py collectstatic --link --noinput
 
 .PHONY: run-django-migrate
 run-django-migrate:  ## Run django migrate
