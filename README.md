@@ -34,8 +34,6 @@ $ find . -type f
 ./tests/pytest.ini
 
 # Create a virtual environment to isolate our package dependencies locally
-$ export PIP_INDEX_URL="https://git.acmenet.ru/pypi/root/pypi/+simple/"
-$ export PIP_TRUSTED_HOST="git.acmenet.ru"
 $ make venv-init
 $ source .venv/bin/activate
 
@@ -238,12 +236,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 ```
 
-Notice that we're using hyperlinked relations in this case with `HyperlinkedModelSerializer`.  You can also use primary key and various other relationships, but hyperlinking is good RESTful design.
+Notice that we're using hyperlinked relations in this case with `HyperlinkedModelSerializer`. You can also use primary key and various other relationships, but hyperlinking is good RESTful design.
 
 
 ### Views
 
-Right, we'd better write some views then.  Open `app/gar/views.py` and get typing.
+Right, we'd better write some views then. Open `app/gar/views.py` and get typing.
 
 ```python
 from django.contrib.auth.models import User, Group
@@ -277,7 +275,7 @@ We can easily break these down into individual views if we need to, but using vi
 
 ### URLs
 
-Okay, now let's wire up the API URLs.  On to `app/urls.py`...
+Okay, now let's wire up the API URLs. On to `app/urls.py`.
 
 ```python
 from django.contrib import admin
@@ -304,7 +302,7 @@ Because we're using viewsets instead of views, we can automatically generate the
 
 Again, if we need more control over the API URLs we can simply drop down to using regular class-based views, and writing the URL conf explicitly.
 
-Finally, we're including default login and logout views for use with the browsable API.  That's optional, but useful if your API requires authentication and you want to use the browsable API.
+Finally, we're including default login and logout views for use with the browsable API. That's optional, but useful if your API requires authentication and you want to use the browsable API.
 
 In case you plan to run this instance of Django using gunicorn, you can add to the end of the file `app/urls.py` the following lines:
 
@@ -341,7 +339,7 @@ if not DEBUG:
 
 ### Settings
 
-Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`
+Add `'django_filters'` and `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`:
 
 ```python
 INSTALLED_APPS = [
@@ -356,13 +354,13 @@ Okay, we're done.
 
 ### Testing our API
 
-We're now ready to test the API we've built.  Let's fire up the server from the command line.
+We're now ready to test the API we've built. Let's fire up the server from the command line.
 
 ```bash
 $ python manage.py runserver 0.0.0.0:8000
 ```
 
-We can now access our API, both from the command-line, using tools like `curl`...
+We can now access our API, both from the command-line, using tools like `curl`.
 
 ```bash
 $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://localhost:8000/users/
@@ -384,6 +382,21 @@ $ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://loca
 ```
 
 Or directly through the browser, by going to the URL `http://localhost:8000/users/` in browser. In this case make sure to login using the control in the top right corner.
+
+
+### Setting the permission policy
+
+By default, REST API allowing unrestricted access. If there is a need to make authorization mandatory, you need to edit the file `app/settings.py`:
+
+```python
+REST_FRAMEWORK = {
+    ...,
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    ...,
+}
+```
 
 
 ## `m3-gar` and `m3-rest-gar` project setup
@@ -808,3 +821,39 @@ Additional fields `name_with_parents` (in the hierarchy model) and `name_with_ty
 $ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8 --adm
 $ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8
 ```
+
+
+### Testing our `m3-rest-gar` API
+
+We're now ready to test the `m3-rest-gar` API we've built. Let's fire up the server from the command line.
+
+```bash
+$ python manage.py runserver 0.0.0.0:8000
+```
+
+We can now access our API, both from the command-line, using tools like `curl`.
+
+```bash
+$ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://localhost:8000/gar/v1/
+```
+```json
+{
+  "addrobj": "http://localhost:8000/gar/v1/addrobj/",
+  "houses": "http://localhost:8000/gar/v1/houses/",
+  "steads": "http://localhost:8000/gar/v1/steads/",
+  "apartments": "http://localhost:8000/gar/v1/apartments/",
+  "rooms": "http://localhost:8000/gar/v1/rooms/"
+}
+```
+
+Here we see what methods are available for this REST API. Let's try to call `addrobj` with the `level=1` parameter (show only the list of macro-regions):
+
+```bash
+$ curl -s -H "Accept: application/json; indent=4" "http://localhost:8000/gar/v1/addrobj/?level=1" | jq -r '.results[] | [.region_code, .name] | @csv'
+47,"Ленинградская"
+78,"Санкт-Петербург"
+```
+
+You can open the URL `http://localhost:8000/gar/v1/` directly in the browser so that you can perform various types of search with filtering. In this case make sure to login using the control in the top right corner.
+
+More detailed information about the types of search with examples can be found on the official module page [`m3-rest-gar`](https://pypi.org/project/m3-rest-gar/).
