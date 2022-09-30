@@ -150,7 +150,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / STATIC_URL.replace('/', '')
 # Additional locations of static files
-STATICFILES_DIRS = (STATIC_ROOT, )
+#STATICFILES_DIRS = (STATIC_ROOT, )
 # List of finder classes that know how to find static files in various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
