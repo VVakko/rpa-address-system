@@ -33,14 +33,14 @@ $ find . -type f
 ./tests/__init__.py
 ./tests/pytest.ini
 
-# Create a virtual environment to isolate our package dependencies locally
+# Create a virtual environment to isolate our package dependencies locally.
 $ make venv-init
 $ source .venv/bin/activate
 
-# Install linters, pytest and other general packages
+# Install linters, pytest and other general packages.
 $ make venv-deps-upgrade
 
-# Save dependencies to 'requirements.txt' file (with versions)
+# Save dependencies to 'requirements.txt' file (with versions).
 $ make venv-deps-freeze-and-save
 ```
 
@@ -48,12 +48,12 @@ Create a new Django project named `app`, then start a new app called `gar`.
 
 ```bash
 # Install Django and Django REST framework into the virtual environment
-# Add `django==3.2.4`, `djangorestframework`, `m3-gar`, `m3-rest-gar` and
-# `psycopg2-binary` to the `requirements.dev.txt` and then execute next commands:
+# Add `django==3.2.4`, `djangorestframework`, `m3-gar`, `m3-rest-gar` and `psycopg2-binary`
+# to the `requirements.dev.txt` and then execute next commands:
 $ make venv-deps-upgrade
 $ make venv-deps-freeze-and-save
 
-# Set up a new Django project with a single application
+# Set up a new Django project with a single application.
 $ django-admin startproject app .  # Don't forget about the trailing '.' character
 $ cd app
 $ django-admin startapp gar
@@ -87,11 +87,10 @@ Now let's move from the module `app/settings.py` sensitive data that should not 
 ```bash
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY="django-insecure-..."
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG="0"  # 0 if False, 1 if True
-
-ALLOWED_HOSTS="*"  # Specify the allowed hostnames or IP addresses separated by spaces
+# Specify the allowed hostnames or IP addresses separated by spaces.
+ALLOWED_HOSTS="*"
 ```
 
 And in the file `app/settings.py` instead of these lines we write
@@ -115,8 +114,6 @@ DEBUG = os.environ.get('DEBUG') == '1'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
 ```
-
-If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to `1`, otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
 
 
 ### Moving default SQLite database to data directory
@@ -147,7 +144,8 @@ DB_USER="DjangoUserName"
 DB_PASS="DjangoPassWord"
 ```
 
-#### Installing `pymysql` module in python virtual environment
+#### Installing `pymysql` module in python virtual environment:
+
 ```bash
 $ echo 'pymysql' >>requirements.dev.txt
 $ make venv-deps-upgrade
@@ -176,7 +174,7 @@ DATABASES = {
 
 ### Initializing Django DB and creating initial user `admin`
 
-Now sync your database for the first time:
+Now sync your database for the first time.
 
 ```bash
 $ python manage.py migrate
@@ -304,6 +302,9 @@ Again, if we need more control over the API URLs we can simply drop down to usin
 
 Finally, we're including default login and logout views for use with the browsable API. That's optional, but useful if your API requires authentication and you want to use the browsable API.
 
+
+### Serving static files by Django in any debug-mode
+
 In case you plan to run this instance of Django using gunicorn, you can add to the end of the file `app/urls.py` the following lines:
 
 ```python
@@ -318,7 +319,7 @@ This will allow Django to serve static files independently, without involving an
 
 ### Pagination
 
-Pagination allows you to control how many objects per page are returned. To enable it add the following lines to `app/settings.py`
+Pagination allows you to control how many objects per page are returned. To enable it add the following lines to `app/settings.py`:
 
 ```python
 REST_FRAMEWORK = {
@@ -336,15 +337,16 @@ if not DEBUG:
     })
 ```
 
+If you plan to use the `rest_framework` user interface, then the `DEBUG` variable in the `.env` file must be equal to `1`, otherwise files from the `/static/rest_framework/` folder will be unavailable to the browser. And the user interface will not work due to the fact that `rest_framework` will not be able to get `.css` and `.js` files. To avoid this, for the case when `DEBUG` is disabled, we write the default class `rest_framework.renderers.JSONRenderer` to the `DEFAULT_RENDERER_CLASSES` variable.
+
 
 ### Settings
 
-Add `'django_filters'` and `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`:
+Add `'rest_framework'` to `INSTALLED_APPS`. The settings module will be in `app/settings.py`:
 
 ```python
 INSTALLED_APPS = [
     ...,
-    'django_filters',
     'rest_framework',
 ]
 ```
@@ -407,7 +409,6 @@ REST_FRAMEWORK = {
 $ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
 $ nano docker-compose.yml
 version: '3.6'
-
 services:
   postgresql:
     image: 'postgres:13.8-alpine'
@@ -440,6 +441,7 @@ Add some modules to `INSTALLED_APPS` and register modules and database in settin
 ```python
 INSTALLED_APPS = [
     ...,
+    'django_filters',
     'm3_gar',
     'm3_rest_gar',
 ]
@@ -478,7 +480,7 @@ GAR_DB_USER="GARUserName"
 GAR_DB_PASS="GARPassWord"
 ```
 
-Now let's register REST GAR API URL on to `app/urls.py`
+Now let's register REST GAR API URL on to `app/urls.py`:
 
 ```python
 urlpatterns = [
@@ -730,6 +732,8 @@ If you plan to load a address directory for all macro-regions to the database, t
 $ REGIONS="47 78" ./misc/gar_xml_extract.sh ./data/gar_xml.zip ./data/_extracted
 ```
 
+> Total size of data files for the two regions `47` and `78` will be `~12GiB`, after loading to the **PostgreSQL** database, the size of the database will be approximately the same. Keep in mind.
+
 Now let's start loading the address directory into the database.
 
 ```bash
@@ -834,22 +838,22 @@ $ python manage.py runserver 0.0.0.0:8000
 We can now access our API, both from the command-line, using tools like `curl`.
 
 ```bash
-$ curl -H "Accept: application/json; indent=4" -u admin:"<password>" http://localhost:8000/gar/v1/
+$ curl -H "Accept: application/json; indent=4" -u admin:"<password>" "http://localhost:8000/gar/v1/"
 ```
 ```json
 {
-  "addrobj": "http://localhost:8000/gar/v1/addrobj/",
-  "houses": "http://localhost:8000/gar/v1/houses/",
-  "steads": "http://localhost:8000/gar/v1/steads/",
-  "apartments": "http://localhost:8000/gar/v1/apartments/",
-  "rooms": "http://localhost:8000/gar/v1/rooms/"
+    "addrobj": "http://localhost:8000/gar/v1/addrobj/",
+    "houses": "http://localhost:8000/gar/v1/houses/",
+    "steads": "http://localhost:8000/gar/v1/steads/",
+    "apartments": "http://localhost:8000/gar/v1/apartments/",
+    "rooms": "http://localhost:8000/gar/v1/rooms/"
 }
 ```
 
 Here we see what methods are available for this REST API. Let's try to call `addrobj` with the `level=1` parameter (show only the list of macro-regions):
 
 ```bash
-$ curl -s -H "Accept: application/json; indent=4" "http://localhost:8000/gar/v1/addrobj/?level=1" | jq -r '.results[] | [.region_code, .name] | @csv'
+$ curl -s -H "Accept: application/json" -u admin:"<password>" "http://localhost:8000/gar/v1/addrobj/?level=1" | jq -r '.results[] | [.region_code, .name] | @csv'
 47,"Ленинградская"
 78,"Санкт-Петербург"
 ```
