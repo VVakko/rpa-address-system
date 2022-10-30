@@ -706,6 +706,66 @@ $ sed -i 's/TrigramExtension(),/BtreeGinExtension(),\n        TrigramExtension()
 </details>
 
 
+### Fixing errors in `m3-rest-gar` module
+
+<details>
+    <summary>Fixing error: <code>django.core.exceptions.FieldError: Unsupported lookup 'exact' for CharField or join on the field not permitted</code></summary>
+
+```python
+Traceback (most recent call last):
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 47, in inner
+    response = get_response(request)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/views/decorators/csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/rest_framework/generics.py", line 150, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django_filters/rest_framework/backends.py", line 96, in filter_queryset
+    return filterset.qs
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django_filters/filterset.py", line 243, in qs
+    qs = self.filter_queryset(qs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django_filters/filterset.py", line 230, in filter_queryset
+    queryset = self.filters[name].filter(queryset, value)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django_filters/filters.py", line 146, in filter
+    qs = self.get_method(qs)(**{lookup: value})
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/query.py", line 941, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/query.py", line 961, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/query.py", line 968, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/sql/query.py", line 1391, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/sql/query.py", line 1410, in _add_q
+    child_clause, needed_inner = self.build_filter(
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/sql/query.py", line 1345, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/sql/query.py", line 1176, in build_lookup
+    lhs = self.try_transform(lhs, name)
+  File "/rpa-address-system/.venv/lib/python3.10/site-packages/django/db/models/sql/query.py", line 1224, in try_transform
+    raise FieldError(
+django.core.exceptions.FieldError: Unsupported lookup 'exact' for CharField or join on the field not permitted, perhaps you meant exact or iexact?
+[30/Oct/2022 12:46:25] "GET /gar/v1/addrobj/?level=&parent=&name=&name__exact=test&name_with_typename=&typename=&region_code=&name_with_parents= HTTP/1.1" 500 173632
+```
+```bash
+$ patch `pip show m3-rest-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_rest_gar/filters.py -p0 <./misc/m3-rest-gar-1.0.37/filters.patch
+```
+</details>
+
+
 ### Download and import GAR data from http://nalog.ru/ site
 
 Now we are starting the longest procedures in terms of time. We need to download an archive with a database of addresses, extract the macro regions we need from them and upload them to the PostgreSQL database.
