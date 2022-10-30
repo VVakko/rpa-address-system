@@ -1,13 +1,24 @@
 --- filters.py.orig	2022-10-30 16:03:10.010060472 +0300
 +++ filters.py	2022-10-30 15:55:15.468928694 +0300
-@@ -121,8 +121,8 @@
+@@ -121,14 +121,18 @@
      parent = HierarchyParentFilter()
      region_code = NumberInFilter(field_name='region_code')
      name = CharFilter(lookup_expr='icontains')
 -    name__exact = CharFilter(lookup_expr='exact')
 -    name_with_typename = CharFilter(lookup_expr='icontains')
 +    name__exact = CharFilter(field_name='name', lookup_expr='exact')
++    name__iexact = CharFilter(field_name='name', lookup_expr='iexact')
 +    name_with_typename = CharFilter(field_name='name', lookup_expr='icontains')
      typename = CharInFilter(field_name='typename')
      name_with_parents = HierarchyNameWithParentsFilter()
  
+     class Meta:
+         model = AddrObj
+-        fields = ['level', 'parent', 'name', 'name__exact', 'name_with_typename', 'typename']
++        fields = [
++            'level', 'parent', 'name', 'name__exact', 'name__iexact',
++            'name_with_typename', 'typename'
++        ]
+ 
+ 
+ class HousesFilter(FilterSet):

@@ -158,3 +158,19 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Updating default generated filter labels.
+# https://django-filter.readthedocs.io/en/stable/ref/settings.html#verbose-lookups-setting
+
+def FILTERS_VERBOSE_LOOKUPS():  # pylint: disable=invalid-name
+    from django_filters.conf import DEFAULTS  # pylint: disable=import-outside-toplevel
+
+    verbose_lookups = DEFAULTS['VERBOSE_LOOKUPS'].copy()
+    verbose_lookups.update({
+        'contains': 'contains (case-sensitive)',
+        'icontains': 'contains (case-insensitive)',
+        'exact': 'is equal to (case-sensitive)',
+        'iexact': 'is equal to (case-insensitive)',
+    })
+    return verbose_lookups
