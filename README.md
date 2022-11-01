@@ -884,6 +884,8 @@ Additional fields `name_with_parents` (in the hierarchy model) and `name_with_ty
 # Starting updating the name_with_parents fields for the AdmHierarchy and MunHierarchy models
 $ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8 --adm
 $ python manage.py fill_custom_fields --parents --levels=1,2,3,4,5,6,7,8
+# Starting updating the name_with_typename fields for the AddrObj model (for 7,8 levels only)
+$ python manage.py fill_custom_fields --typenames
 ```
 
 
