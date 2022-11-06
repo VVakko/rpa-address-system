@@ -873,7 +873,7 @@ DELETE FROM m3_gar_houses WHERE objectid >= 105589510;
 Total deleted row count: 2378
 ```
 
-> Loading two regions `47` and `78` takes a little less than 5 hours on a computer with an NVMe SSD, 64GB of RAM and a Quad-core `i7-8559U` processor.
+> Loading two regions `47` and `78` takes a little less than 5 hours on a computer with an NVMe SSD, 64GB of RAM and a Quad-core `i7-8559U` processor. If you add two more regions `50` and `77`, the loading time will increase to 14.5 hours.
 
 
 ### Filling `name_with_parents` and `name_with_typename` fields in the `AddrOdj` model
