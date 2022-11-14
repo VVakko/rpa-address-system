@@ -1,7 +1,24 @@
---- filters.py.orig	2022-10-30 16:03:10.010060472 +0300
-+++ filters.py	2022-10-30 15:55:15.468928694 +0300
-@@ -121,14 +121,18 @@
-     parent = HierarchyParentFilter()
+--- filters.py.orig     2022-10-31 01:10:55.980055240 +0300
++++ filters.py  2022-11-14 19:28:06.107034095 +0300
+@@ -6,6 +6,11 @@
+ from django.db.models import (
+     Q,
+ )
++from django_filters.utils import (
++    label_for_filter,
++    verbose_field_name,
++    verbose_lookup_expr
++)
+ from django_filters.rest_framework import (
+     BaseInFilter,
+     CharFilter,
+@@ -118,32 +123,51 @@
+     Фильтр сведений классификатора адресообразующих элементов
+     """
+     level = NumberInFilter(field_name='level')
+-    parent = HierarchyParentFilter()
++    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
++    parent = HierarchyParentFilter(label=_)
      region_code = NumberInFilter(field_name='region_code')
      name = CharFilter(lookup_expr='icontains')
 -    name__exact = CharFilter(lookup_expr='exact')
@@ -10,7 +27,9 @@
 +    name__iexact = CharFilter(field_name='name', lookup_expr='iexact')
 +    name_with_typename = CharFilter(field_name='name', lookup_expr='icontains')
      typename = CharInFilter(field_name='typename')
-     name_with_parents = HierarchyNameWithParentsFilter()
+-    name_with_parents = HierarchyNameWithParentsFilter()
++    _ = "Фильтр по полю name_with_parents в иерархии адресных объектов"
++    name_with_parents = HierarchyNameWithParentsFilter(label=_)
  
      class Meta:
          model = AddrObj
@@ -22,3 +41,91 @@
  
  
  class HousesFilter(FilterSet):
+     """
+     Фильтр сведений по номерам домов улиц городов и населенных пунктов
+     """
+-    parent = HierarchyParentFilter()
+-    housenum = CharFilter(method='_housenum', lookup_expr='icontains')
+-    housenum__exact = CharFilter(method='_housenum', lookup_expr='exact')
++    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
++    parent = HierarchyParentFilter(label=_)
++    housenum = CharFilter(field_name='housenum', lookup_expr='icontains')
++    housenum__exact = CharFilter(field_name='housenum', lookup_expr='exact')
++    housenum__iexact = CharFilter(field_name='housenum', lookup_expr='iexact')
++    housenum_adds = CharFilter(method='_housenum_adds', lookup_expr='icontains')
++    housenum_adds__exact = CharFilter(method='_housenum_adds', lookup_expr='exact')
++    housenum_adds__iexact = CharFilter(method='_housenum_adds', lookup_expr='iexact')
++    for _ in [housenum_adds, housenum_adds__exact, housenum_adds__iexact]:
++        _.label = (
++            f"{verbose_field_name(Houses, housenum.field_name)} + доп. номера "
++            f"{verbose_lookup_expr(_.lookup_expr)}"
++        )
+ 
+     class Meta:
+         model = Houses
+-        fields = ['parent', 'housenum', 'housenum__exact']
++        fields = [
++            'parent', 'housenum', 'housenum__exact', 'housenum__iexact',
++            'housenum_adds', 'housenum_adds__exact', 'housenum_adds__iexact'
++        ]
+ 
+-    def _housenum(self, qs, name, value):
++    def _housenum_adds(self, qs, name, value):
+         """
+         Фильтр по номеру дома также должен учитывать дополнительные номера дома
+         """
+@@ -167,36 +191,42 @@
+     Фильтр сведений по земельным участкам
+     """
+ 
+-    parent = HierarchyParentFilter()
+-    number = CharFilter(lookup_expr='icontains')
+-    number__exact = CharFilter(lookup_expr='exact')
++    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
++    parent = HierarchyParentFilter(label=_)
++    number = CharFilter(field_name='number', lookup_expr='icontains')
++    number__exact = CharFilter(field_name='number', lookup_expr='exact')
++    number__iexact = CharFilter(field_name='number', lookup_expr='iexact')
+ 
+     class Meta:
+         model = Steads
+-        fields = ['parent', 'number', 'number__exact']
++        fields = ['parent', 'number', 'number__exact', 'number__iexact']
+ 
+ 
+ class ApartmentsFilter(FilterSet):
+     """
+     Фильтр сведений по помещениям
+     """
+-    parent = HierarchyParentFilter()
+-    number = CharFilter(lookup_expr='icontains')
+-    number__exact = CharFilter(lookup_expr='exact')
++    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
++    parent = HierarchyParentFilter(label=_)
++    number = CharFilter(field_name='number', lookup_expr='icontains')
++    number__exact = CharFilter(field_name='number', lookup_expr='exact')
++    number__iexact = CharFilter(field_name='number', lookup_expr='iexact')
+ 
+     class Meta:
+         model = Apartments
+-        fields = ['parent', 'number', 'number__exact']
++        fields = ['parent', 'number', 'number__exact', 'number__iexact']
+ 
+ 
+ class RoomsFilter(FilterSet):
+     """
+     Фильтр сведений по комнатам
+     """
+-    parent = HierarchyParentFilter()
+-    number = CharFilter(lookup_expr='icontains')
+-    number__exact = CharFilter(lookup_expr='exact')
++    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
++    parent = HierarchyParentFilter(label=_)
++    number = CharFilter(field_name='number', lookup_expr='icontains')
++    number__exact = CharFilter(field_name='number', lookup_expr='exact')
++    number__iexact = CharFilter(field_name='number', lookup_expr='iexact')
+ 
+     class Meta:
+         model = Rooms
+-        fields = ['parent', 'number', 'number__exact']
++        fields = ['parent', 'number', 'number__exact', 'number__iexact']
