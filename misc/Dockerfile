@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 LABEL maintainer="Alexander Protasov <protasov_aa@pesc.ru>"
 LABEL application="RPA Address System"

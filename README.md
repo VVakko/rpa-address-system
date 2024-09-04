@@ -408,12 +408,11 @@ REST_FRAMEWORK = {
 ```bash
 $ mkdir -p /srv/postgresql/data && cd /srv/postgresql/
 $ nano docker-compose.yml
-version: '3.6'
 services:
   postgresql:
     image: 'postgres:13.8-alpine'
     container_name: postgresql
-    restart: always
+    restart: unless-stopped
     environment:
       TZ: "Europe/Moscow"
       POSTGRES_DB: ${POSTGRES_DB}
@@ -424,10 +423,12 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${PWD}/data:/var/lib/postgresql/data
+
 $ nano .env
 POSTGRES_DB="GAR"
 POSTGRES_USER="GARUserName"
 POSTGRES_PASSWORD="GARPassWord"
+
 $ docker-compose up --detach
 Creating network "postgresql_default" with the default driver
 Creating postgresql ... done
@@ -605,7 +606,6 @@ ImportError: cannot import name 'Mapping' from 'collections' (/usr/lib/python3.1
 ```bash
 $ sed -i 's/^from collections import/from collections.abc import/' `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/importer/db_wrapper.py
 ```
-
 </details>
 
 <details>
@@ -761,7 +761,7 @@ django.core.exceptions.FieldError: Unsupported lookup 'exact' for CharField or j
 [30/Oct/2022 12:46:25] "GET /gar/v1/addrobj/?level=&parent=&name=&name__exact=test&name_with_typename=&typename=&region_code=&name_with_parents= HTTP/1.1" 500 173632
 ```
 ```bash
-$ patch `pip show m3-rest-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_rest_gar/filters.py -p0 <./misc/m3-rest-gar-1.0.37/filters.patch
+$ patch `pip show m3-rest-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_rest_gar/filters.py -p0 <./misc/m3-rest-gar-1.0.45/filters.patch
 ```
 </details>
 
@@ -832,17 +832,17 @@ In order to be able to load data from such archives, it is necessary to apply a 
 
 This patch will remove rows from the database that refer to non-existent data. Thus, we will lose some addresses that have been added to the database in the last day or two, but the data in the database will remain consistent.
 
-Before applying the patch, you need to make sure that the version of the `m3-gar` module is `1.0.33`.
+Before applying the patch, you need to make sure that the version of the `m3-gar` module is `1.1.1`.
 
 ```bash
 $ pip show m3-gar | grep 'Version'
-Version: 1.0.33
+Version: 1.1.1
 ```
 
 If the module version is suitable, then apply the patch:
 
 ```bash
-$ patch `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/management/commands/manage_constraints.py -p0 <./misc/m3-gar-1.0.33/manage_constraints.patch
+$ patch `pip show m3-gar | grep 'Location' | sed -e 's/^Location: //'`/m3_gar/management/commands/manage_constraints.py -p0 <./misc/m3-gar-1.1.1/manage_constraints.patch
 patching file /rpa-address-system/.venv/lib/python3.10/site-packages/m3_gar/management/commands/manage_constraints.py
 ```
 

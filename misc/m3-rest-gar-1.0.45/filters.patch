@@ -1,5 +1,5 @@
---- filters.py.orig     2022-10-31 01:10:55.980055240 +0300
-+++ filters.py  2022-11-14 19:28:06.107034095 +0300
+--- filters.py.orig	2024-07-09 15:01:17.916604813 +0300
++++ filters.py	2024-07-09 15:28:09.569075445 +0300
 @@ -6,6 +6,11 @@
  from django.db.models import (
      Q,
@@ -99,11 +99,10 @@
      """
 -    parent = HierarchyParentFilter()
 -    number = CharFilter(lookup_expr='icontains')
--    number__exact = CharFilter(lookup_expr='exact')
 +    _ = "Фильтр по objectid родителя в иерархии адресных объектов"
 +    parent = HierarchyParentFilter(label=_)
 +    number = CharFilter(field_name='number', lookup_expr='icontains')
-+    number__exact = CharFilter(field_name='number', lookup_expr='exact')
+     number__exact = CharFilter(field_name='number', lookup_expr='exact')
 +    number__iexact = CharFilter(field_name='number', lookup_expr='iexact')
  
      class Meta:
