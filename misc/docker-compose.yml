@@ -1,7 +1,7 @@
 networks:
   backend:
     name: backend
-    external: false
+    external: true
 
 services:
   rpa-address-system:
